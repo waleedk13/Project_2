@@ -1,4 +1,11 @@
+/**
+ *
+ *
+ * @author Waleed Khalid, Rehan Baig
+ */
+
 package project2;
+import java.util.Iterator;
 
 public class List<E> implements Iterable<E> {
 

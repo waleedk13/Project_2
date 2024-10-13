@@ -1,5 +1,10 @@
-package project2;
+/**
+ *
+ *
+ * @author Waleed Khalid, Rehan Baig
+ */
 
+package project2;
 import java.util.Calendar;
 
 public class Date implements Comparable<Date>{
@@ -321,18 +326,26 @@ public class Date implements Comparable<Date>{
         System.out.println("Today's date: " + today.toString());
 
         // Test equals() method
-        System.out.println("date1 equals date2? " + date1.equals(date2)); // Expected: false
-        System.out.println("date1 equals date3? " + date1.equals(date3)); // Expected: true
+        System.out.println("date1 equals date2? " + date1.equals(date2));
+        // Expected: false
+        System.out.println("date1 equals date3? " + date1.equals(date3));
+        // Expected: true
 
         // Test compareTo() method
-        System.out.println("date1 compareTo date2: " + date1.compareTo(date2)); // Expected: Negative
-        System.out.println("date2 compareTo date1: " + date2.compareTo(date1)); // Expected: Positive
-        System.out.println("date1 compareTo date3: " + date1.compareTo(date3)); // Expected: 0 (same dates)
+        System.out.println("date1 compareTo date2: " + date1.compareTo(date2));
+        // Expected: Negative
+        System.out.println("date2 compareTo date1: " + date2.compareTo(date1));
+        // Expected: Positive
+        System.out.println("date1 compareTo date3: " + date1.compareTo(date3));
+        // Expected: 0 (same dates)
 
         // Test validation
-        System.out.println("Is date1 valid? " + date1.isValid()); // Expected: true
-        System.out.println("Is today valid? " + today.isValid()); // Expected: true
-        System.out.println("Is date4 valid? " + date4.isValid()); // Depends on input date
+        System.out.println("Is date1 valid? " + date1.isValid());
+        // Expected: true
+        System.out.println("Is today valid? " + today.isValid());
+        // Expected: true
+        System.out.println("Is date4 valid? " + date4.isValid());
+        // Depends on input date
 
         // Test other methods
         System.out.println("Is date1 before today? " + date1.isBeforeToday());

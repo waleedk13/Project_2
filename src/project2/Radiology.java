@@ -1,12 +1,28 @@
-package project2;
+/**
+ *
+ *
+ * @author Waleed Khalid, Rehan Baig
+ */
 
+package project2;
 public enum Radiology {
 
-    /*CATSCAN,
+    CATSCAN,
     ULTRASOUND,
-    XRAY.
+    XRAY;
 
-
-    these three are what we need to implement */
+    @Override
+    public String toString() {
+        if (this == CATSCAN) {
+            return "CAT Scan";
+        } else if (this == ULTRASOUND) {
+            return "Ultrasound";
+        } else if (this == XRAY) {
+            return "X-ray";
+        } else {
+            return super.toString();  // Default to the name of the
+            // enum constant
+        }
+    }
 
 }

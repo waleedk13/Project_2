@@ -1,22 +1,43 @@
+/**
+ *
+ *
+ * @author Waleed Khalid, Rehan Baig
+ */
+
 package project2;
+public class Person implements Comparable<Person> {
+    protected Profile profile;
 
-public class Person {
+    // Constructor
+    public Person(Profile profile) {
+        this.profile = profile;
+    }
 
-    public class Timeslot implements Comparable<Timeslot> {
-        private int hour;
-        private int minute;
+    // Getter method for profile
+    public Profile getProfile() {
+        return profile;
+    }
 
+    // compareTo method for comparing Person objects
+    @Override
+    public int compareTo(Person otherPerson) {
+        return this.profile.compareTo(otherPerson.profile);
+        // Assuming Profile has compareTo() implemented
+    }
 
-        //constructor class
-        public Timeslot(int hour, int minute){
-            this.hour = hour;
-            this.minute = minute;
-        }
+    // equals method to check if two Person objects are equal
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Person person = (Person) obj;
+        return profile.equals(person.profile);
+    }
 
-        //default constructor
-        public Timeslot(){
-            this.hour = 0;
-            this.minute = 0;
-        }
+    // toString method to represent the Person object as a string
+    @Override
+    public String toString() {
+        return profile.toString();
+        // Assuming Profile has a meaningful toString() method
     }
 }
