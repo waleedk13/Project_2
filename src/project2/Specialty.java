@@ -1,31 +1,26 @@
-/**
+/*@author Waleed Khalid
+ * @author Rehan Baig
  *
- *
- * @author Waleed Khalid, Rehan Baig
- */
+ * !! Explain what this class does !!
+ * */
 
 package project2;
-public class Specialty {
-    private String name;
-    private int ratePerVisit;
 
-    public Specialty(String name, int ratePerVisit){
-        this.name = name;
-        this.ratePerVisit = ratePerVisit;
+public enum Specialty {
+    FAMILY(250),
+    PEDIATRICIAN(300),
+    ALLERGIST(350);
+
+    private final int charge;
+
+
+    Specialty(int charge) {
+        this.charge = charge;
     }
 
-    public String getName(){
-        return name;
+    public int getCharge() {
+        return charge;
     }
-
-    public int getRatePerVisit() {
-        return ratePerVisit;
-    }
-
-    @Override
-    public String toString() {
-        return name + " (Rate per Visit: $" + ratePerVisit + ")";
-    }
-
 
 }
+

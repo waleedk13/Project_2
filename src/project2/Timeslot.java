@@ -1,50 +1,71 @@
-/**
+/*@author Waleed Khalid
+ * @author Rehan Baig
  *
- *
- * @author Waleed Khalid, Rehan Baig
- */
+ * !! Explain what this class does !!
+ * */
+
 
 package project2;
-public class Timeslot implements Comparable<Timeslot> {
-    private int hour;
-    private int minute;
 
-    // Constructor
-    public Timeslot(int hour, int minute) {
+//enum class for timeslot
+public enum Timeslot{
+    SLOT1(9,0),
+    SLOT2(10, 45),
+    SLOT3(11,15),
+    SLOT4(13,30),
+    SLOT5(15,0),
+    SLOT6(16,15);
+
+    final int hour;
+    final int minute;
+
+    Timeslot(int hour, int minute){
         this.hour = hour;
         this.minute = minute;
     }
 
-    // Getter methods
-    public int getHour() {
+    //getter method to return hour
+    public int getHour(){
         return hour;
     }
-
+    //getter method to return minute
     public int getMinute() {
         return minute;
     }
 
-    // equals() method to compare if two Timeslot objects are the same
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Timeslot timeslot = (Timeslot) obj;
-        return hour == timeslot.hour && minute == timeslot.minute;
+    public static Timeslot timeslotFromNumber(int timeSlotNumber) {
+        Timeslot[] timeslots = Timeslot.values();
+        if (timeSlotNumber < 1 || timeSlotNumber > timeslots.length) {
+            System.out.println(timeSlotNumber + " is not a valid time slot.");
+            System.out.flush();
+
+            return null;
+        }
+        return timeslots[timeSlotNumber - 1]; // 1-based index adjustment
     }
 
-    // toString() method to represent Timeslot as a string in "HH:MM" format
+
+    public int getTimeslotNumber() {
+        return this.ordinal() + 1;  // ordinal() gives the index, so add 1 to make it 1-based
+    }
+
     @Override
     public String toString() {
-        return String.format("%02d:%02d", hour, minute); // Ensures time is displayed in two digits
+        int displayHour = hour;
+        String period = "AM";
+
+        // Convert 24-hour format to 12-hour format
+        if (hour >= 12) {
+            period = "PM";
+            if (hour > 12) {
+                displayHour = hour - 12;
+            }
+        } else if (hour == 0) {
+            displayHour = 12; // Midnight case
+        }
+
+        // Return formatted time with AM/PM
+        return String.format("%d:%02d %s ", displayHour, minute, period);
     }
 
-    // compareTo() method to compare two Timeslot objects
-    @Override
-    public int compareTo(Timeslot otherTimeslot) {
-        if (this.hour != otherTimeslot.hour) {
-            return Integer.compare(this.hour, otherTimeslot.hour);
-        }
-        return Integer.compare(this.minute, otherTimeslot.minute);
-    }
 }

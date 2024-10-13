@@ -1,43 +1,48 @@
-/**
+/*@author Waleed Khalid
+ * @author Rehan Baig
  *
- *
- * @author Waleed Khalid, Rehan Baig
- */
+ * !! Explain what this class does !!
+ * */
+
+
 
 package project2;
+
+
+/*The purpose of this class is to define a node in a singly linked list which
+* maintains the list of vists
+* you can add constructors and method but can not change the instance variables
+* */
 public class Visit {
-    private Date visitDate;  // The date of the visit
-    private String serviceProvided;  // Type of service
-    private Person provider;  // The doctor providing service
-    private int cost;  // The cost for the service
+    private Appointment appointment;
+    private Visit next;
 
-    public Visit(Date visitDate, String serviceProvided,
-                 Person provider, int cost) {
-        this.visitDate = visitDate;
-        this.serviceProvided = serviceProvided;
-        this.provider = provider;
-        this.cost = cost;
+
+    public Visit(Appointment appointment, Visit next){
+        this.appointment = appointment;
+        this.next = next;
     }
 
-    public Date getVisitDate() {
-        return visitDate;
+    public Appointment getAppointment() {
+        return appointment;
     }
 
-    public String getServiceProvided() {
-        return serviceProvided;
+    // Getter for the next Visit object (next node in the linked list)
+    public Visit getNext() {
+
+        return next;
     }
 
-    public Person getProvider() {
-        return provider;
+    public void setNext(Visit next) {
+        this.next = next;
     }
 
-    public int getCost() {
-        return cost;
-    }
-
-    @Override
-    public String toString() {
-        return "Visit on " + visitDate + " for " +
-                serviceProvided + " with " + provider + ", Cost: $" + cost;
+    public void printVisits() {
+        Visit current = this;
+        while (current != null) {
+            System.out.println(current.getAppointment().toString());
+            System.out.flush(); // Print each appointment
+            current = current.getNext(); // Move to the next node
+        }
     }
 }
