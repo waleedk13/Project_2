@@ -4,18 +4,18 @@
  * !! Explain what this class does !!
  * */
 
-
 package project2;
 
-public class Patient implements Comparable<Patient> {
-    private Profile profile;
+public class Patient extends Person {
     private Visit visits; // Linked list of visits (completed appointments)
 
+    // Constructor for Patient that takes a Profile and a Visit
     public Patient(Profile profile, Visit visits) {
-        this.profile = profile;
+        super(profile); // Call the constructor of the Person class
         this.visits = visits;
     }
 
+    // Method to calculate total charge based on visits
     public int charge() {
         int totalCharge = 0;
         Visit currentVisit = this.visits; // Start from the first visit in the list
@@ -27,13 +27,6 @@ public class Patient implements Comparable<Patient> {
 
         return totalCharge;
     }
-
-
-    @Override
-    public int compareTo(Patient other) {
-        return this.profile.getLastName().compareTo(other.profile.getLastName()); // Compare patients by last name
-    }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -50,12 +43,6 @@ public class Patient implements Comparable<Patient> {
     @Override
     public String toString() {
         return "Patient: " + profile.getFirstName() + " " + profile.getLastName() + ", DOB: " + profile.getDob();
-    }
-
-
-    // Getter for Profile
-    public Profile getProfile() {
-        return profile;
     }
 
     // Getter for Visits

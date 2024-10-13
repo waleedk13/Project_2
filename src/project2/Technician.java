@@ -1,30 +1,17 @@
-/**
- *
- *
- * @author Waleed Khalid, Rehan Baig
- */
-
 package project2;
-public class Technician extends Provider{
-    private int ratePerVisit;
 
+public class Technician extends Provider {
+    private int ratePerVisit;  // The technician's rate per visit
 
-
-    public Technician(Profile profile, Location location, int ratePerVisit){
-        super(profile, location);
+    // Constructor for Technician
+    public Technician(int ratePerVisit, Location location) {
         this.ratePerVisit = ratePerVisit;
-
+        this.setLocation(location);  // Use the setter from Provider to set location
     }
 
+    // Implement the abstract rate() method from Provider
     @Override
     public int rate() {
-       return ratePerVisit;
-    }
-
-    // Optional:
-    @Override
-    public String toString() {
-        return "Technician: " + profile.toString() + ", Location: " +
-                getLocation().toString() + ", Rate per Visit: $" + ratePerVisit;
+        return ratePerVisit;
     }
 }
