@@ -1,7 +1,7 @@
-package project2;
-
-public enum Radiology {
-    XRAY,
-    ULTRASOUND,
-    CATSCAN
-}
+//package project2;
+//
+//public enum Radiology {
+//    XRAY,
+//    ULTRASOUND,
+//    CATSCAN
+//}

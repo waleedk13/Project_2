@@ -1,18 +1,10 @@
-/*@author Waleed Khalid
- * @author Rehan Baig
- *
- * !! Explain what this class does !!
- * */
-
-
-
 package project2;
-
 
 /*The purpose of this class is to define a node in a singly linked list which
 * maintains the list of vists
 * you can add constructors and method but can not change the instance variables
 * */
+
 public class Visit {
     private Appointment appointment;
     private Visit next;
@@ -29,7 +21,6 @@ public class Visit {
 
     // Getter for the next Visit object (next node in the linked list)
     public Visit getNext() {
-
         return next;
     }
 

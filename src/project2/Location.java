@@ -1,9 +1,3 @@
-/*@author Waleed Khalid
- * @author Rehan Baig
- *
- * !! Explain what this class does !!
- * */
-
 package project2;
 
 public enum Location {
@@ -24,7 +18,6 @@ public enum Location {
     }
 
 
-
     public String getName() {
         return name();
     }
@@ -35,6 +28,10 @@ public enum Location {
 
     public String getZip() {
         return zip;
+    }
+
+    public String toString() {
+        return String.format("%s, %s %s", getName(), getCounty(), getZip());
     }
 
 }

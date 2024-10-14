@@ -1,9 +1,3 @@
-/*@author Waleed Khalid
- * @author Rehan Baig
- *
- * !! Explain what this class does !!
- * */
-
 package project2;
 
 public enum Specialty {

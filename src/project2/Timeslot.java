@@ -1,71 +1,93 @@
-/*@author Waleed Khalid
- * @author Rehan Baig
- *
- * !! Explain what this class does !!
- * */
-
-
 package project2;
 
-//enum class for timeslot
-public enum Timeslot{
-    SLOT1(9,0),
-    SLOT2(10, 45),
-    SLOT3(11,15),
-    SLOT4(13,30),
-    SLOT5(15,0),
-    SLOT6(16,15);
+public class Timeslot implements Comparable<Timeslot> {
+    private int hour;
+    private int minute;
 
-    final int hour;
-    final int minute;
 
-    Timeslot(int hour, int minute){
+    public Timeslot(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
     }
 
-    //getter method to return hour
-    public int getHour(){
+    public int getHour() {
         return hour;
     }
-    //getter method to return minute
+
     public int getMinute() {
         return minute;
     }
 
-    public static Timeslot timeslotFromNumber(int timeSlotNumber) {
-        Timeslot[] timeslots = Timeslot.values();
-        if (timeSlotNumber < 1 || timeSlotNumber > timeslots.length) {
-            System.out.println(timeSlotNumber + " is not a valid time slot.");
-            System.out.flush();
-
-            return null;
+    @Override
+    public int compareTo(Timeslot other) {
+        if (this.hour != other.hour) {
+            return Integer.compare(this.hour , other.hour);  // Return negative if this.hour is less, positive if greater
         }
-        return timeslots[timeSlotNumber - 1]; // 1-based index adjustment
+
+        return Integer.compare(this.minute , other.minute);  // Return negative if this.minute is less, positive if greater
     }
 
+    @Override
+    public boolean equals(Object obj){
+        if (this == obj) {
+            return true;
+        }
 
-    public int getTimeslotNumber() {
-        return this.ordinal() + 1;  // ordinal() gives the index, so add 1 to make it 1-based
+        // Check if the object is an instance of Timeslot
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Timeslot other = (Timeslot) obj;
+        return this.hour == other.hour && this.minute == other.minute;
     }
 
     @Override
     public String toString() {
-        int displayHour = hour;
-        String period = "AM";
-
-        // Convert 24-hour format to 12-hour format
-        if (hour >= 12) {
+        String period;
+        if (hour >= 9 && hour <= 12) {
+            period = "AM";
+        } else {
             period = "PM";
-            if (hour > 12) {
-                displayHour = hour - 12;
-            }
-        } else if (hour == 0) {
-            displayHour = 12; // Midnight case
         }
-
-        // Return formatted time with AM/PM
-        return String.format("%d:%02d %s ", displayHour, minute, period);
+        return String.format("%d:%02d %s", hour, minute, period);
     }
 
+    public static void generateTimelots(Timeslot[] timeslots) {
+        // Morning slots: 9:00 AM to 12:00 PM
+        int hour = 9;
+        int minute = 0;
+
+        for (int i = 0; i < 6; i++) {
+            timeslots[i] = new Timeslot(hour, minute);
+            minute += 30;
+            if (minute == 60) {
+                hour++;
+                minute = 0;
+            }
+        }
+
+        // Afternoon slots: 2:00 PM to 5:00 PM (12-hour format)
+        hour = 2;
+        minute = 0;
+
+        for (int i = 6; i < 12; i++) {
+            timeslots[i] = new Timeslot(hour, minute);
+            minute += 30;
+            if (minute == 60) {
+                hour++;
+                minute = 0;
+            }
+        }
+    }
+
+    public static Timeslot timeslotFromNumber(int slotNumber, Timeslot[] timeslots) {
+        return timeslots[slotNumber - 1]; // Subtract 1 to match array index (0-based)
+    }
+
+
 }
+
+
+
+

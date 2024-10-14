@@ -11,7 +11,14 @@ public class Person implements Comparable<Person>{
         this.profile = null;
     }
 
-    public int compareTo(Person otherPerson) { //USES PROFILE COMPARE TO METHOD, might need to fix?
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public int compareTo(Person otherPerson) {
         return this.profile.compareTo(otherPerson.profile);
     }
+
+
+
 }
