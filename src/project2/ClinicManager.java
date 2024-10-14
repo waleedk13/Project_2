@@ -1,73 +1,124 @@
 package project2;
+import java.util.Scanner;
 
 public class ClinicManager{
     //private List appointmentList;
     Timeslot[] timeslots = new Timeslot[12];
     Provider[] providers = new Provider[16];
 
-    public void run(){
-        //automatically load the list of providers from the text file “providers.txt” in the project folder and display
-        //the list after it is loaded, sorted by provider profile. It also creates a rotation list of technicians for
-        //scheduling imaging appointments.
+    public void run() {
         Provider.generateProviders(providers);
+        //sort by provider profile!
+        //Creates a rotation list of technicians for scheduling imaging appointments.
+        displayProviderList();
         System.out.println("Clinic Manager is running.");
+        Scanner scanner = new Scanner(System.in);
+
+        //Initialize the appointmentList if it's null
+//        if (appointmentList == null) {
+//            appointmentList = new List();
+//        }
+        while (scanner.hasNextLine()) {
+            String command = scanner.nextLine().trim();
+
+            if (command.startsWith("Q")) {
+                quitClinicManager();
+                return;
+            }
+            else if (isOneLetterCommand(command)) { // Handle one-letter commands (D, T, C, R)
+                oneLetterCommand(command);
+            }
+            else if (isTwoLetterCommand(command)) { // Handle two-letter commands (PA, PP, PL, PS, PO, PI, PC)
+                twoLetterCommand(command);
+            }
+            else {
+                System.out.println("Invalid command!");
+            }
+        }
+    }
+
+
+    private boolean isOneLetterCommand(String command) {
+        return command.startsWith("D") || command.startsWith("T") || command.startsWith("C") || command.startsWith("R");
+    }
+
+    private boolean isTwoLetterCommand(String command) {
+        return command.startsWith("PA") || command.startsWith("PP") || command.startsWith("PL")
+                || command.startsWith("PS") || command.startsWith("PO") || command.startsWith("PI")
+                || command.startsWith("PC");
+    }
+
+    public void oneLetterCommand(String command){
+        if (command.startsWith("D")) {
+            scheduleDoctorAppointment(command);
+        }
+        else if (command.startsWith("T")) {
+            scheduleImagingAppointment(command);
+        }
+        else if (command.startsWith("C")) {
+            cancelAppointment(command);
+        }
+        if (command.startsWith("R")) {
+            rescheduleAppointment(command);
+        }
+    }
+
+
+    public void twoLetterCommand(String command) {
+        if (command.startsWith("PA")) {
+
+        } else if (command.startsWith("PP")) {
+
+        } else if (command.startsWith("PL")) {
+
+        } else if (command.startsWith("PS")) {
+
+        } else if (command.startsWith("PO")) {
+
+        } else if (command.startsWith("PI")) {
+
+        } else if (command.startsWith("PC")) {
+
+        }
+    }
+
+
+    public void displayProviderList(){
+        for (Provider provider : providers) {
+            System.out.println(provider.toString());
+        }
+    }
+
+    public void quitClinicManager(){
+        System.out.println("Clinic Manager terminated.");
+    }
+
+    public void scheduleDoctorAppointment(String input){
+
+    }
+
+    public void scheduleImagingAppointment(String input){
+
+    }
+
+    public void cancelAppointment(String input){
+
+    }
+
+    public void rescheduleAppointment(String input) {
 
     }
 
 
 
-
-
-
-
+    public static void main(String[] args) {
+        new ClinicManager().run();
+    }
 }
 
 
 
-//package project2;
-//import javax.print.Doc;
-//import java.sql.Time;
-//import java.util.Scanner;
-//
-//public class ClinicManager {
-//    private List appointmentList;
-//    Timeslot[] timeslots = new Timeslot[12];  // Array to store 12 slots
-//    Doctor[] doctors = new Doctor[10];
-//    Technician[] technicians = new Technician[6];
-//
-//
-//    public void run(){
-//        System.out.println("Clinic Manager is running.");
-//        Doctor.generateDoctors(doctors);
-//        Timeslot.generateTimelots(timeslots);
-//        //Technician.generateTechnician(technicians);
-//
-//        Scanner scanner = new Scanner(System.in);
-//        // Initialize the appointmentList if it's null
-//        if (appointmentList == null) {
-//            appointmentList = new List();
-//        }
-//
-//        while (scanner.hasNextLine()) {
-//            String command = scanner.nextLine().trim();
-//
-//            if (command.isEmpty()) {
-//                continue; // skip empty lines
-//            }
-//
-//            if (command.startsWith("Q")) {
-//                quitClinicManager();
-//                break;
-//            }
-//            else if (command.startsWith("S")) {
-//                scheduleAppointment(command);
-//            }
-//            else if (command.startsWith("C")) {
-//                cancelAppointment(command);
-//            }
-//            else if (command.startsWith("R")) {
-//                rescheduleAppointment(command);
-//            }
+
 //            else if (command.startsWith("PA")) {
 //                appointmentList.printByAppointment();
 //            }
@@ -80,19 +131,11 @@ public class ClinicManager{
 //            else if (command.startsWith("PS")) {
 //                displayBillingStatements();
 //            }
-//            else {
-//                System.out.println("Invalid command!");
-//                System.out.flush();
-//
-//            }
 //        }
-//        scanner.close();
+//
 //    }
 //
-//    public void quitClinicManager(){
-//        System.out.println("Clinic Manager terminated.");
-//        System.out.flush();
-//    }
+
 //
 //    public void scheduleAppointment(String input){
 //        if (appointmentList == null) {
@@ -267,7 +310,5 @@ public class ClinicManager{
 //        return appointmentList.findAppointmentByProfileAndDate(profile, appointmentDate, originalTimeslot);
 //    }
 //
-//    public static void main(String[] args) {
-//        new ClinicManager().run();
-//    }
+
 //}
