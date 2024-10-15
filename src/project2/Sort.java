@@ -2,9 +2,31 @@ package project2;
 
 public class Sort {
 
-    //
 
-    public static void sortByPatients(List<Appointment> list) {
+    public static void appointment(List<Appointment> list, char key) {
+        if (list.size() == 0) {
+            throw new IllegalStateException("Scheduler calendar is empty");
+
+        }
+
+        switch(key){
+            case 'A':
+                sortByAppointment(list);
+                break;
+            case 'L':
+                sortByLocation(list);
+                break;
+            case 'P':
+                sortByPatients(list);
+                break;
+            default:
+                throw new IllegalStateException("Scheduler class is empty");
+        }
+
+
+    }
+
+    private static void sortByPatients(List<Appointment> list) {
         if (list.isEmpty()) {
             return;
         }
@@ -17,14 +39,16 @@ public class Sort {
                 if (list.get(j) == null) {
                     exchange(j, j + 1, list);
                 } else if (list.get(j + 1) != null) {
-                    int profileCompare = list.get(j).getPatientPerson().getProfile()
-                            .compareTo(list.get(j + 1).getPatientPerson().getProfile());
+                    int profileCompare = list.get(j).getPatientPerson().
+                            getProfile().compareTo(list.get(j + 1)
+                                    .getPatientPerson().getProfile());
                     int dateCompare = list.get(j).getDate()
                             .compareTo(list.get(j + 1).getDate());
                     int timeslotCompare = list.get(j).getTimeslot()
                             .compareTo(list.get(j + 1).getTimeslot());
                     if (profileCompare > 0 || (profileCompare == 0 &&
-                            (dateCompare > 0 || (dateCompare == 0 && timeslotCompare > 0)))) {
+                            (dateCompare > 0 || (dateCompare == 0 &&
+                                    timeslotCompare > 0)))) {
                         exchange(j, j + 1, list);
                         swapped = true;
                     }
@@ -35,7 +59,6 @@ public class Sort {
                 break;
             }
         }
-        return;
     }
 
 
@@ -64,35 +87,39 @@ public class Sort {
                             getProviderPerson();
                     Provider provider2 = (Provider) list.get(j+1).
                             getProviderPerson();
-
                     int locationCompare = provider1.getLocation().getCounty().
                             compareTo(provider2.getLocation().getCounty());
+                    int dateCompare = list.get(j).getDate().compareTo(list.
+                            get(j+1).getDate());
+                    int timeslotCompare = list.get(j).getTimeslot().
+                            compareTo(list.get(j+1).getTimeslot());
 
-                    if(locationCompare > 0 || (locationCompare == 0 && list.
-                            get(j).getDate().compareTo(list.get(j+1).getDate())
-                            >0) || (locationCompare == 0 && list.get(j).
-                            getDate().compareTo(list.get(j+1).getDate()) == 0 &&
-                            list.get(j).getTimeslot().compareTo(list.get(j+1).
-                                    getTimeslot()) > 0)){
-                        exchange(j,j+1,list);
+
+                    boolean isLocationGreater = locationCompare > 0;
+                    boolean isDateGreater = locationCompare == 0 &&
+                            dateCompare > 0;
+                    boolean isTimeslotGreater = locationCompare == 0 &&
+                            dateCompare == 0 && timeslotCompare > 0;
+
+                    if (isLocationGreater || isDateGreater || isTimeslotGreater) {
+                        exchange(j, j + 1, list);
                     }
                 }
             }
         }
     }
 
+    public static void sortProvider(List<Provider> lists){
+        int a = lists.size();
 
 
-    public static void providerSort(List<Provider> providers){
-        int a = providers.size();
-
-        for(int i = 0; i < providers.size() - 1; i++){
-            for(int j = 0; j < providers.size() - i - 1; j++){
-                if(providers.get(j).getProfile().compareTo(providers.
+        for(int i = 0; i < lists.size() - 1; i++){
+            for(int j = 0; j < lists.size() - i - 1; j++){
+                if(lists.get(j).getProfile().compareTo(lists.
                         get(j + 1).getProfile()) > 0){
-                    Provider tempSwitch = providers.get(j);
-                    providers.set(j, providers.get(j+1));
-                    providers.set(j+1, tempSwitch);
+                    Provider tempSwitch = lists.get(j);
+                    lists.set(j, lists.get(j+1));
+                    lists.set(j+1, tempSwitch);
                 }
             }
         }
@@ -107,23 +134,31 @@ public class Sort {
         list.set(j, temp);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public static void provider(List<Provider> list) {
-
+    //move to clinical manager
+    public void printByPatient(List<Appointment> list){
+        if(list.size() == 0){
+            System.out.println("The schedule calendar is empty.");
+        }
+        sortByPatients(list);
+        boolean NULL = true;
+        int i = 0;
+        while(i < list.size()){
+            if(list.get(i) != null){
+                NULL = false;
+            }
+        }
+        if(NULL){
+            System.out.println("The scheduler class is empty");
+            return;
+        }
+        int j = 0;
+        while(j < list.size()){
+            if(list.get(i) == null){
+                continue;
+            }
+            System.out.println(list.get(j));
+        }
     }
-
-
 }
 
 
