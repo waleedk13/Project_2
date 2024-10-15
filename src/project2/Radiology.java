@@ -7,10 +7,14 @@ public enum Radiology {
 
     @Override
     public String toString() {
-        switch(this) {
-            case XRAY: return "XRAY";
-            case ULTRASOUND: return "ULTRASOUND";
-            case CATSCAN: return "CATSCAN";
+        if (this == XRAY) {
+            return "XRAY";
+        } else if (this == ULTRASOUND) {
+            return "ULTRASOUND";
+        } else if (this == CATSCAN) {
+            return "CATSCAN";
+        } else {
+            throw new IllegalArgumentException("Unexpected value: " + this);
         }
     }
 }

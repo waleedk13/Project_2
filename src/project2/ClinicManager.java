@@ -5,14 +5,15 @@ public class ClinicManager {
     private Timeslot[] timeslots = new Timeslot[12];
     private List<Provider> providerList = new List<>();
     private List<Appointment> appointmentList = new List<>();
+    private CircularlyLinkedList technicianList = new CircularlyLinkedList();
 
     public void run() {
         Provider.generateProviders(providerList);
         System.out.println("Providers loaded to the list.");
-        //sort providers
-        //display providers
-        //Creates a rotation list of technicians for scheduling imaging appointments.
-        displayProviderList(providerList);
+        Sort.providerSort(providerList);
+        displayProviders(providerList);
+        generateTechnicianCircularLinkedList(providerList);
+        displayTechnicians(); //DOESN'T DO IT IN THE ORDER THEY WANT??????
         System.out.println("Clinic Manager is running.");
         System.out.println();
         Scanner scanner = new Scanner(System.in);
@@ -61,11 +62,11 @@ public class ClinicManager {
 
     public void twoLetterCommand(String command) {
         if (command.startsWith("PA")) {
-
+            printByAppointment();
         } else if (command.startsWith("PP")) {
-
+            printByPatient();
         } else if (command.startsWith("PL")) {
-
+            printByLocation();
         } else if (command.startsWith("PS")) {
 
         } else if (command.startsWith("PO")) {
@@ -202,6 +203,8 @@ public class ClinicManager {
         Date dobDate = new Date(inputArray[5]);
         Profile patientProfile = new Profile(inputArray[3], inputArray[4], dobDate);
         Person patient = new Person(patientProfile);
+
+
         //Cannot find a technician with the timeslot and imaging service available.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //        Appointment appointment = new Appointment(appointmentDate, selectedTimeSlot, patient, doctor);
@@ -287,6 +290,89 @@ public class ClinicManager {
         return new Appointment(appointmentDate, selectedTimeSlot, patient, null);
     }
 
+    public void displayProviders(List<Provider> providerList) {
+        for (int i = 0; i < providerList.size(); i++) {
+            System.out.println(providerList.get(i).toString());
+        }
+        System.out.println();
+    }
+
+    public void generateTechnicianCircularLinkedList(List<Provider> providerList) {
+        for (int i = 0; i < providerList.size(); i++) {
+            Provider provider = providerList.get(i);
+            if (provider instanceof Technician) {
+                Technician technician = (Technician) provider;
+                technicianList.addTechnician(technician);  // Add technician to the circular list
+            }
+        }
+    }
+
+    public void displayTechnicians() {
+        System.out.println("Rotation list for the technicians.");
+        Technician firstTechnician = technicianList.getNextTechnician();
+        Technician currentTechnician = firstTechnician;
+        do {
+            System.out.print(currentTechnician.toStringWithoutRate());
+            currentTechnician = technicianList.getNextTechnician();
+
+            if (currentTechnician != firstTechnician) {
+                System.out.print(" --> ");
+            }
+        } while (currentTechnician != firstTechnician);
+
+        System.out.println();
+        System.out.println();
+    }
+
+
+    public void printByAppointment() {
+        if (appointmentList.isEmpty()) {
+            System.out.println("The schedule calendar is empty.");
+            return;
+        }
+        // Sort the appointment list by date, timeslot, and provider
+        Sort.sortByAppointment(appointmentList);
+        System.out.println();
+        System.out.println("** Appointments ordered by date/time/provider **");
+        printAppointments();
+    }
+
+    public void printByPatient() {
+        if (appointmentList.isEmpty()) {
+            System.out.println("The schedule calendar is empty.");
+            return;
+        }
+
+        // Sort the appointment list by patient profile, date, and timeslot
+        Sort.sortByPatients(appointmentList);
+        System.out.println();
+        System.out.println("** Appointments ordered by patient/date/time **");
+        printAppointments();
+    }
+
+
+    public void printByLocation() {
+        if (appointmentList.isEmpty()) {
+            System.out.println("The schedule calendar is empty.");
+            return;
+        }
+
+        // Sort the appointment list by location, date, and timeslot
+        Sort.sortByLocation(appointmentList);
+        System.out.println("** Appointments ordered by county/date/time **");
+        printAppointments();
+    }
+
+
+    public void printAppointments(){
+        for (int i = 0; i < appointmentList.size(); i++) {
+            System.out.println(appointmentList.get(i).toString());
+        }
+        System.out.println("** end of list **");
+    }
+
+
+
 
 
 
@@ -296,34 +382,7 @@ public class ClinicManager {
     }
 }
 
-//    public void rescheduleAppointment(String input) {
-//        if (appointmentList == null) {
-//            appointmentList = new List();
-//        }
-//
-//        String[] inputArray = breakStringIntoArray(input);
-//        Appointment originalAppointment = createAppointmentUsingBrokenString(inputArray);
-//        if(originalAppointment==null){
-//            return;
-//        }
-//        Provider provider = originalAppointment.getProvider();
-//        int timeSlotNumber = Integer.parseInt(inputArray[6]);
-//        Timeslot newTimeSlot = Timeslot.timeslotFromNumber(timeSlotNumber, timeslots);
-//        if (newTimeSlot == null) {
-//            return;
-//        }
-//        if (!appointmentList.isProviderAvailable(provider, originalAppointment.getDate(), newTimeSlot)){
-//            return;
-//        }
-//
-//        appointmentList.remove(originalAppointment);
-//        Appointment newAppointment = new Appointment(originalAppointment.getDate(), newTimeSlot, originalAppointment.getPatientProfile(), originalAppointment.getProvider());
-//        appointmentList.add(newAppointment);
-//        System.out.println("Rescheduled to " + newAppointment.toString());
-//        System.out.flush();
-//
-//    }
-//
+
 //    public void displayBillingStatements(){
 //        if (!appointmentList.organizeByPatient()) {
 //            return; // If no appointments, just return

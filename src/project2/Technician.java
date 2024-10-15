@@ -19,4 +19,12 @@ public class Technician extends Provider {
         return String.format("[%s, %s][rate: $%s.00]", this.getProfile().toString(), this.getLocation(), this.rate() );
     }
 
+    public String toStringWithoutRate(){
+        return String.format("%s, (%s)", this.getProfile().toString(), this.getLocation());
+    }
+
+
+
+
+
 }

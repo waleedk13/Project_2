@@ -3,21 +3,10 @@ package project2;
 public class Sort {
 
     //
-    public static void appointment(List<Appointment> list, char key) {
-        if (list.size() == 0) {
-            throw new IllegalStateException("Scheduler calendar is empty");
-        }
 
-        boolean sorted = sortByPatients(list);
-
-        if (!sorted) {
-            throw new IllegalStateException("Scheduler class is empty");
-        }
-    }
-
-    private static boolean sortByPatients(List<Appointment> list) {
+    public static void sortByPatients(List<Appointment> list) {
         if (list.isEmpty()) {
-            return false;
+            return;
         }
         int n = list.size();
         Appointment temp;
@@ -46,7 +35,7 @@ public class Sort {
                 break;
             }
         }
-        return true;
+        return;
     }
 
 
@@ -96,7 +85,6 @@ public class Sort {
 
     public static void providerSort(List<Provider> providers){
         int a = providers.size();
-
 
         for(int i = 0; i < providers.size() - 1; i++){
             for(int j = 0; j < providers.size() - i - 1; j++){
