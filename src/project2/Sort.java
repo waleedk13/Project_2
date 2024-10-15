@@ -134,6 +134,31 @@ public class Sort {
         list.set(j, temp);
     }
 
+    //move to clinical manager
+    public void printByPatient(List<Appointment> list){
+        if(list.size() == 0){
+            System.out.println("The schedule calendar is empty.");
+        }
+        sortByPatients(list);
+        boolean NULL = true;
+        int i = 0;
+        while(i < list.size()){
+            if(list.get(i) != null){
+                NULL = false;
+            }
+        }
+        if(NULL){
+            System.out.println("The scheduler class is empty");
+            return;
+        }
+        int j = 0;
+        while(j < list.size()){
+            if(list.get(i) == null){
+                continue;
+            }
+            System.out.println(list.get(j));
+        }
+    }
 }
 
 
