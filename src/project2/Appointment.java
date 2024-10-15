@@ -1,6 +1,6 @@
 package project2;
 
-public class Appointment implements Comparable <Appointment> {
+public class Appointment implements Comparable<Appointment> {
     protected Date date;
     protected Timeslot timeslot;
     protected Person patientPerson;
@@ -20,62 +20,61 @@ public class Appointment implements Comparable <Appointment> {
         this.providerPerson = null;
     }
 
-        @Override
+    @Override
     public int compareTo(Appointment o) {
-
-        int compareDates = this.date.compareTo(o.date); //compares date first
-        if(compareDates != 0){
+        int compareDates = this.date.compareTo(o.date); // Compare dates first
+        if (compareDates != 0) {
             return compareDates;
         }
 
-        int compareTimeslot = this.timeslot.compareTo(o.timeslot); //compares timeslot next
-        if(compareTimeslot != 0){
+        int compareTimeslot = this.timeslot.compareTo(o.timeslot); // Compare timeslot next
+        if (compareTimeslot != 0) {
             return compareTimeslot;
         }
 
-        return this.patientPerson.compareTo(o.patientPerson); //then compares patients
+        return this.patientPerson.compareTo(o.patientPerson); // Finally, compare patients
     }
 
-
     @Override
-    public String toString(){
+    public String toString() {
         return date.toString() + " " + timeslot.toString() +
-                patientPerson.getProfile().toString() + " " + providerPerson.toString() + " booked";
+                patientPerson.getProfile().toString() + " " + providerPerson.toString();
     }
 
+    public String toStringWithoutProvider() {
+        return date.toString() + " " + timeslot.toString() +
+                patientPerson.getProfile().toString();
+    }
 
-    //purpose is to see if two appointment objects are equal
+    // Purpose is to see if two appointment objects are equal
     @Override
-    public boolean equals(Object obj){
-        if(this == obj){ //checks to see if both objects point to the same memory location
+    public boolean equals(Object obj) {
+        if (this == obj) { // Checks if both objects point to the same memory location
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) { //if the object is null or if
+        if (obj == null || getClass() != obj.getClass()) { // Checks if the object is null or not the same class
             return false;
         }
         Appointment other = (Appointment) obj;
-        return date.equals(other.date) && timeslot.equals(other.timeslot) &&
-                patientPerson.getProfile().equals(other.patientPerson.getProfile());
+        return date.equals(other.date) &&
+                timeslot.equals(other.timeslot) &&
+                patientPerson.getProfile().equals(other.patientPerson.getProfile()) &&
+                providerPerson.getProfile().equals(other.providerPerson.getProfile()); // Compare providerPerson as well
     }
 
-
-    public Person getPatientPerson(){
+    public Person getPatientPerson() {
         return patientPerson;
-
     }
 
-    public Date getDate(){
+    public Date getDate() {
         return date;
     }
-
 
     public Timeslot getTimeslot() {
         return this.timeslot;
     }
 
-
     public Person getProviderPerson() {
         return providerPerson;
     }
-
 }

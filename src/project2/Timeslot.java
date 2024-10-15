@@ -81,8 +81,20 @@ public class Timeslot implements Comparable<Timeslot> {
         }
     }
 
-    public static Timeslot timeslotFromNumber(int slotNumber, Timeslot[] timeslots) {
+    public static Timeslot getTimeslotFromNumber(int slotNumber, Timeslot[] timeslots) {
+        if(slotNumber<1 || slotNumber>12){
+            return null;
+        }
         return timeslots[slotNumber - 1]; // Subtract 1 to match array index (0-based)
+    }
+
+    public static int getNumberFromTimeslot(Timeslot timeslot, Timeslot[] timeslots) {
+        for (int i = 0; i < timeslots.length; i++) {
+            if (timeslots[i].equals(timeslot)) {
+                return i + 1; // Return the slot number (1-based index)
+            }
+        }
+        return -1; // Return -1 if the timeslot is not found
     }
 
 

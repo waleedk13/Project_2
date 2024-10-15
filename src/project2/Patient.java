@@ -25,7 +25,7 @@
 //        return visits;
 //    }
 //}
-
+//
 //}
 //
 //    // Method to calculate total charge based on visits
@@ -53,4 +53,4 @@
 //        return profile.equals(other.profile); // Compare profiles for equality
 //    }
 //
-
+//

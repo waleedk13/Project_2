@@ -24,10 +24,13 @@ public class Doctor extends Provider {
         return specialty;
     }
 
-    public static Doctor getDoctorByNpi(String npi, Doctor[] doctors) {
-        for (Doctor doctor : doctors) {
-            if (doctor != null && doctor.getNpi().equals(npi)) {
-                return doctor;
+    public static Doctor getDoctorByNpi(String npi, List<Provider> providerList) {
+        for (int i = 0; i < providerList.size(); i++) {
+            Provider provider = providerList.get(i);
+            if (provider instanceof Doctor doctor) {
+                if (doctor.getNpi().equals(npi)) {
+                    return doctor;  // Return the matching doctor
+                }
             }
         }
         return null;

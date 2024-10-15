@@ -140,6 +140,26 @@ public class Date implements Comparable<Date>{
         return null;
     }
 
+    public String validateAppointmentDate(Date appointmentDate){
+        if (!appointmentDate.isValid()) {
+            return "Appointment date: " + appointmentDate.toString() + " is not a valid calendar date.";
+        }
+
+        if (appointmentDate.isToday()|| appointmentDate.isBeforeToday()) {
+            return "Appointment date: " + appointmentDate.toString() + " is today or a date before today.";
+        }
+
+        if (appointmentDate.isWeekend()) {
+            return "Appointment date: " + appointmentDate.toString() + " is Saturday or Sunday.";
+        }
+
+        if (!appointmentDate.isWithinSixMonths()) {
+            return "Appointment date: " + appointmentDate.toString() + " is not within six months.";
+        }
+
+        return null;
+    }
+
 
      public boolean isValid() {
          if (month < 1 || month > 12) {//conditional tp check if the month is valid
