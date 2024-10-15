@@ -93,9 +93,6 @@ public class Sort {
     }
 
 
-    public static void locationCompare()
-
-
 
     public static void providerSort(List<Provider> providers){
         int a = providers.size();
