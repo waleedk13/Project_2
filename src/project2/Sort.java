@@ -26,7 +26,7 @@ public class Sort {
 
     }
 
-    private static void sortByPatients(List<Appointment> list) {
+    public static void sortByPatients(List<Appointment> list) {
         if (list.isEmpty()) {
             return;
         }

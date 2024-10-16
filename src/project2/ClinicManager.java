@@ -8,9 +8,10 @@ public class ClinicManager {
     private CircularlyLinkedList technicianList = new CircularlyLinkedList();
 
     public void run() {
+        Timeslot.generateTimelots(timeslots);
         Provider.generateProviders(providerList);
         System.out.println("Providers loaded to the list.");
-        Sort.providerSort(providerList);
+        Sort.sortProvider(providerList);
         displayProviders(providerList);
         generateTechnicianCircularLinkedList(providerList);
         displayTechnicians(); //DOESN'T DO IT IN THE ORDER THEY WANT??????
@@ -113,7 +114,16 @@ public class ClinicManager {
 
     public void scheduleImagingAppointment(String input) {
         Appointment appointment = createImagingAppointmentFromString(input);
-
+        if (appointment == null) {
+            return;
+        }
+        if(appointmentList.contains(appointment)){
+            System.out.println(appointment.getPatientPerson().toString()+ " has an existing appointment at the same time slot.");
+            return;
+        }
+        appointmentList.add(appointment);
+        System.out.println(appointment.toString() + " booked.");
+        System.out.flush();
     }
 
     public void cancelAppointment(String input) {
@@ -167,7 +177,7 @@ public class ClinicManager {
         String npi = inputArray[6];
         Doctor doctor = Doctor.getDoctorByNpi(npi, providerList);
         if (!npi.matches("\\d+") || doctor == null) { //for doctor, if NPI isn't numeric
-            System.out.println(npi + " is not a valid numeric NPI.");
+            System.out.println(npi + " - does not exist.");
             return null;
         }
 
@@ -191,11 +201,22 @@ public class ClinicManager {
         if(!areAllTokensValid(inputArray)){
             return null;
         }
+
+        Radiology room;
         String imagingType = inputArray[6];
-        if (!(imagingType.equals("xray") || imagingType.equals("ultrasound") || imagingType.equals("catscan"))){
-            System.out.println(imagingType + " - imaging service not provided.");
-            System.out.println();
-            return null;
+        switch (imagingType) {
+            case "xray":
+                room = Radiology.XRAY;
+                break;
+            case "catscan":
+                room = Radiology.CATSCAN;
+                break;
+            case "ultrasound":
+                room = Radiology.ULTRASOUND;
+                break;
+            default:
+                System.out.println(imagingType + " - imaging service not provided.");
+                return null;
         }
 
         Date appointmentDate = new Date(inputArray[1]);
@@ -203,20 +224,19 @@ public class ClinicManager {
         Date dobDate = new Date(inputArray[5]);
         Profile patientProfile = new Profile(inputArray[3], inputArray[4], dobDate);
         Person patient = new Person(patientProfile);
+        Technician technician = getAvailableTechnician(appointmentDate, selectedTimeSlot, room);
+        if (technician == null){
+            System.out.println("Cannot find an available technician at all locations for "
+                    + room + " at slot " + Timeslot.getNumberFromTimeslot(selectedTimeSlot, timeslots) + ".");
+            return null;
+        }
 
+        Imaging imagingAppointment = new Imaging(appointmentDate, selectedTimeSlot, patient, technician, room);
+        if(appointmentAlreadyExists(imagingAppointment)){
+            return null;
+        }
 
-        //Cannot find a technician with the timeslot and imaging service available.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-//        Appointment appointment = new Appointment(appointmentDate, selectedTimeSlot, patient, doctor);
-//
-//        if(appointmentAlreadyExists(appointment)){
-//            return null;
-//        }
-//
-//        return appointment;
-
-        return null;
-
+        return imagingAppointment;
     }
 
 
@@ -226,6 +246,13 @@ public class ClinicManager {
 
 
     public boolean areAllTokensValid(String[] inputArray){
+
+        //missing data tokens
+        if(inputArray.length!=7){
+            System.out.println("Missing data tokens.");
+            return false;
+        }
+
         //date check
         Date appointmentDate = new Date(inputArray[1]);
         String validatedAppointmentDateString = appointmentDate.validateAppointmentDate(appointmentDate);
@@ -248,18 +275,12 @@ public class ClinicManager {
             return false;
         }
 
-        //missing data tokens
-        if(inputArray.length!=7){
-            System.out.println("Missing data tokens.");
-            return false;
-        }
-
         return true;
     }
 
     public boolean appointmentAlreadyExists(Appointment appointment){
         if(appointmentList.contains(appointment)){
-            System.out.println(appointment.getPatientPerson().toString()+ " has an existing appointment at the same time slot.");
+            System.out.println(appointment.getPatientPerson().getProfile().toString()+ " has an existing appointment at the same time slot.");
             return true;
         }
         return false;
@@ -306,6 +327,69 @@ public class ClinicManager {
             }
         }
     }
+
+
+    private Technician getAvailableTechnician(Date appointmentDate, Timeslot requestedTimeslot, Radiology room) {
+        Technician firstTechnician = technicianList.getNextTechnician(); // Start from the next technician in the list
+        Technician currentTechnician = firstTechnician;
+
+        do {
+            boolean isAvailable = true; // Assume the technician is available
+
+            for (int i = 0; i < appointmentList.size(); i++) {
+                Appointment existingAppointment = appointmentList.get(i);
+                if (existingAppointment.getProviderPerson().equals(currentTechnician) &&
+                        existingAppointment.getDate().equals(appointmentDate) &&
+                        existingAppointment.getTimeslot().equals(requestedTimeslot)) {
+                    isAvailable = false;
+                    break;
+                }
+            }
+
+            if (isAvailable) {
+                Location locationOfTechnician = technicianList.getNextTechnician().getLocation();
+                if(isImagingRoomAvailable(currentTechnician, locationOfTechnician, appointmentDate, requestedTimeslot, room)){
+                    return currentTechnician;
+                }
+            }
+            currentTechnician = technicianList.getNextTechnician();
+
+        } while (currentTechnician != firstTechnician);
+        return null;
+    }
+
+
+
+
+
+    private boolean isImagingRoomAvailable(Technician technician, Location location, Date appointmentDate, Timeslot requestedTimeslot, Radiology room) {
+        // Loop through all appointments to check if the room is already booked at the same location
+        for (int i = 0; i < appointmentList.size(); i++) {
+            Appointment existingAppointment = appointmentList.get(i);
+
+            // Check if the appointment is an imaging appointment
+            if (existingAppointment instanceof Imaging) {
+                Imaging imagingAppointment = (Imaging) existingAppointment;
+
+                Provider provider = (Provider) imagingAppointment.getProviderPerson();
+
+                if (imagingAppointment.getRoom().equals(room) &&
+                        provider.getLocation().equals(location) &&
+                        imagingAppointment.getDate().equals(appointmentDate) &&
+                        imagingAppointment.getTimeslot().equals(requestedTimeslot)) {
+
+                    System.out.println("Room " + room + " at " + location.getName() + " is not available at the requested timeslot.");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+
+
+
 
     public void displayTechnicians() {
         System.out.println("Rotation list for the technicians.");

@@ -23,6 +23,11 @@ public class Technician extends Provider {
         return String.format("%s, (%s)", this.getProfile().toString(), this.getLocation());
     }
 
+    public Profile getProfile(){
+        return profile;
+    }
+
+
 
 
 
