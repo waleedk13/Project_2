@@ -19,6 +19,11 @@ public class Technician extends Provider {
         return String.format("[%s, %s][rate: $%s.00]", this.getProfile().toString(), this.getLocation(), this.rate() );
     }
 
+    public String toStringForRotationList(){
+        return String.format("%s %s (%s)", this.getProfile().getFirstName(), this.getProfile().getLastName(), this.getLocation().getName());
+
+    }
+
     public String toStringWithoutRate(){
         return String.format("%s, (%s)", this.getProfile().toString(), this.getLocation());
     }

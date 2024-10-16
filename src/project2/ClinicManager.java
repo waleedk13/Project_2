@@ -70,23 +70,16 @@ public class ClinicManager {
         } else if (command.startsWith("PL")) {
             printByLocation();
         } else if (command.startsWith("PS")) {
-
+            displayBillingStatements();;
         } else if (command.startsWith("PO")) {
-
+            displayOfficeAppointments();
         } else if (command.startsWith("PI")) {
-
+            displayImagingAppointment();
         } else if (command.startsWith("PC")) {
-
+            displayExpectedCreditAmount();
         }
     }
 
-
-    public void displayProviderList(List<Provider> providerList) {
-        for (int i = 0; i < providerList.size(); i++) {
-            System.out.println(providerList.get(i).toString());
-        }
-        System.out.println();
-    }
 
     public void quitClinicManager() {
         System.out.println("Clinic Manager terminated.");
@@ -114,14 +107,9 @@ public class ClinicManager {
 
 
     public void scheduleImagingAppointment(String input) {
-        Imaging imagingAppointment = createImagingAppointmentFromString(input);
+        Imaging imagingAppointment = createImagingAppointmentFromString(input); //also checks if appointment exists
         if (imagingAppointment == null) {
             return;
-        }
-
-        // Check if the imaging appointment already exists
-        if (appointmentAlreadyExists(imagingAppointment)) {
-            return;  // Do not proceed if the appointment already exists
         }
 
         // If no duplicate exists, add the imaging appointment
@@ -201,6 +189,8 @@ public class ClinicManager {
         return appointment;
     }
 
+
+
     public Imaging createImagingAppointmentFromString(String input) {
         String[] inputArray = breakStringIntoArray(input);
         if(!areAllTokensValid(inputArray)){
@@ -229,18 +219,23 @@ public class ClinicManager {
         Date dobDate = new Date(inputArray[5]);
         Profile patientProfile = new Profile(inputArray[3], inputArray[4], dobDate);
         Person patient = new Person(patientProfile);
+
+        Imaging imagingAppointment = new Imaging(appointmentDate, selectedTimeSlot, patient, null, room);
+
+        // Check if the imaging appointment already exists
+        if(appointmentAlreadyExists(imagingAppointment)){
+            return null;
+        }
+
+        // Get the available technician only after ensuring the appointment doesn't already exist
         Technician technician = getAvailableTechnician(appointmentDate, selectedTimeSlot, room);
-        if (technician == null){
+        if (technician == null) {
             System.out.println("Cannot find an available technician at all locations for "
                     + room + " at slot " + Timeslot.getNumberFromTimeslot(selectedTimeSlot, timeslots) + ".");
             return null;
         }
 
-        Imaging imagingAppointment = new Imaging(appointmentDate, selectedTimeSlot, patient, technician, room);
-        if(appointmentAlreadyExists(imagingAppointment)){
-            return null;
-        }
-
+        imagingAppointment.setTechnician(technician);
         return imagingAppointment;
     }
 
@@ -369,23 +364,26 @@ public class ClinicManager {
     }
 
 
-
-
     private Technician getAvailableTechnician(Date appointmentDate, Timeslot requestedTimeslot, Radiology room) {
-        Technician firstTechnician = technicianList.getNextTechnician(); // Start from the first technician in the circular list
+        Technician firstTechnician = technicianList.getCurrentTechnician(); // Start from the current technician
         Technician currentTechnician = firstTechnician;
 
         do {
-            // Check if the current technician is available for the requested timeslot
             if (isTechnicianAvailable(currentTechnician, appointmentDate, requestedTimeslot)) {
                 Location locationOfTechnician = currentTechnician.getLocation();
 
                 // Check if the room is available at the location the technician works
                 if (isImagingRoomAvailable(locationOfTechnician, appointmentDate, requestedTimeslot, room)) {
+
+                    // Advance to the next technician before returning to avoid re-checking the same technician
+                    technicianList.advanceToNextTechnician(); // Ensure rotation continues after assigning
+
                     return currentTechnician;  // Return the first available technician with a free room
                 }
             }
-            currentTechnician = technicianList.getNextTechnician();
+
+            technicianList.advanceToNextTechnician();
+            currentTechnician = technicianList.getCurrentTechnician();
 
         } while (currentTechnician != firstTechnician);  // Loop back to the start of the technician list
 
@@ -394,14 +392,14 @@ public class ClinicManager {
 
     // Separate method to check if the technician is available
     private boolean isTechnicianAvailable(Technician technician, Date appointmentDate, Timeslot requestedTimeslot) {
-        // Loop through all appointments to check if this technician is already booked
-        for (int i=0; i<appointmentList.size(); i++){
-            Appointment existingAppointment = appointmentList.get(i);
+        for (int i = 0; i < appointmentList.size(); i++) {
+            if(!(appointmentList.get(i) instanceof Imaging existingAppointment)) {
+                continue;
+            }
             if (existingAppointment.getProviderPerson().equals(technician) &&
                     existingAppointment.getDate().equals(appointmentDate) &&
                     existingAppointment.getTimeslot().equals(requestedTimeslot)) {
-                // Technician is already booked
-                return false;
+                return false;  // Technician is already booked
             }
         }
         return true;
@@ -428,13 +426,15 @@ public class ClinicManager {
 
 
 
+
     public void displayTechnicians() {
         System.out.println("Rotation list for the technicians.");
-        Technician firstTechnician = technicianList.getNextTechnician();
+        Technician firstTechnician = technicianList.getCurrentTechnician();
         Technician currentTechnician = firstTechnician;
         do {
-            System.out.print(currentTechnician.toStringWithoutRate());
-            currentTechnician = technicianList.getNextTechnician();
+            System.out.print(currentTechnician.toStringForRotationList());
+            technicianList.advanceToNextTechnician();  // Move to the next technician
+            currentTechnician = technicianList.getCurrentTechnician();
 
             if (currentTechnician != firstTechnician) {
                 System.out.print(" --> ");
@@ -444,6 +444,7 @@ public class ClinicManager {
         System.out.println();
         System.out.println();
     }
+
 
 
     public void printByAppointment() {
@@ -494,6 +495,10 @@ public class ClinicManager {
 
 
     public void displayBillingStatements() {
+        if(appointmentList.isEmpty()){
+            System.out.println("The scheduler calendar is empty");
+            return;
+        }
         if (!Sort.sortByPatients(appointmentList)) {
             return;
         }
@@ -542,7 +547,68 @@ public class ClinicManager {
         appointmentList.clear();
     }
 
+    //PO
+    public void displayOfficeAppointments(){
+        if(appointmentList.isEmpty()){
+            System.out.println("The scheduler calendar is empty");
+            return;
+        }
+        Sort.sortByLocation(appointmentList);
+        // Display the sorted appointments
+        System.out.println("Office Appointments (Sorted by County, Date, " +
+                "and Timeslot):");
+        int i = 0;
+        while(i < appointmentList.size()){
+            if(appointmentList.get(i) instanceof Appointment){
+                Appointment officeAppointment = (Appointment) appointmentList.
+                        get(i);
+                System.out.println(officeAppointment.toString());
+                i++;
+            }
+        }
+    }
 
+    //PI
+    public void displayImagingAppointment() {
+        if (appointmentList.isEmpty()) {
+            System.out.println("The scheduler calendar is empty");
+            return;
+        }
+
+        System.out.println();
+        System.out.println("** List of radiology appointments ordered by county/date/time.");
+        int i = 0;
+        while(i < appointmentList.size()){
+            if(appointmentList.get(i) instanceof Imaging){
+                Imaging imagingAppointment = (Imaging) appointmentList.get(i);
+                System.out.println(imagingAppointment.toString());
+            }
+            i++;
+        }
+        System.out.println("** end of list **");
+    }
+
+    //PC
+    public void displayExpectedCreditAmount(){
+        if (appointmentList.isEmpty()) {
+            System.out.println("The scheduler calendar is empty");
+            return;
+        }
+        for (int i = 0; i < providerList.size(); i++) {
+            Provider provider = providerList.get(i);  // Get the current provider
+            int totalCredits = 0;  // Initialize the total credits for this provider
+
+            for (int j = 0; j < appointmentList.size(); j++) {
+                Appointment appointment = appointmentList.get(j);  // Get the current appointment
+                if (appointment.getProviderPerson().equals(provider)) {
+                    totalCredits += provider.rate();  // Add the provider's rate for each appointment
+                }
+            }
+            System.out.println(provider.getProfile() + ": $" + totalCredits);
+
+
+        }
+    }
 
 
 

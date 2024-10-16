@@ -18,9 +18,16 @@ public class Imaging extends Appointment {
         this.room = room;
     }
 
+    public void setTechnician(Technician technician) {
+        this.providerPerson = technician;  // Assuming providerPerson holds the Technician in the Appointment superclass
+    }
+
+
     @Override
     public String toString() {
         return date.toString() + " " + timeslot.toString() +
                 patientPerson.getProfile().toString() + " " + providerPerson.toString() + "[" + room.toString() + "]";
     }
+
+
 }

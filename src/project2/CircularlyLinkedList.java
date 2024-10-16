@@ -10,40 +10,22 @@ public class CircularlyLinkedList {
         current = null;
     }
 
-    public Node getHead() {
-        return head;
-    }
-
-    public void setHead(Node head) {
-        this.head = head;
-    }
-
-    public Technician getNextTechnician() {
+    // Get the current technician without moving to the next one
+    public Technician getCurrentTechnician() {
         if (current == null) {
-            return null; // No technicians in the list
+            current = head; // Initialize to head if current is not set
         }
-
-        Technician technician = current.getTechnician(); // Get the current technician
-        current = current.getNext(); // Move to the next technician in the list
-        return technician;
+        return current.getTechnician();
     }
 
-
-    public Node getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(Node current) {
-        this.current = current;
-    }
-
-    public void advanceCurrent() {
+    // Move to the next technician in the list
+    public void advanceToNextTechnician() {
         if (current != null) {
-            current = current.getNext();  // Move the pointer to the next node
+            current = current.getNext();
         }
     }
 
-    // Method to add a technician to the front of the circular list
+    // Method to add a technician to the circular list
     public void addTechnician(Technician technician) {
         Node newNode = new Node(technician, null);
         if (head == null) {
@@ -61,18 +43,13 @@ public class CircularlyLinkedList {
             // Insert newNode at the end
             temp.setNext(newNode);  // Last node now points to the new node
             newNode.setNext(head);   // New node points to the head
+
+            // Reset current to head to ensure it starts from the beginning of the list
+            current = head;
         }
     }
-
 
     public boolean isEmpty() {
         return head == null;
     }
-
-
-
-
-
-
 }
-
