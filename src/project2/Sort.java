@@ -26,9 +26,9 @@ public class Sort {
 
     }
 
-    public static void sortByPatients(List<Appointment> list) {
+    public static boolean sortByPatients(List<Appointment> list) {
         if (list.isEmpty()) {
-            return;
+            return false;
         }
         int n = list.size();
         Appointment temp;
@@ -59,6 +59,7 @@ public class Sort {
                 break;
             }
         }
+        return true;
     }
 
 

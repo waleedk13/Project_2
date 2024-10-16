@@ -50,7 +50,7 @@ public class Timeslot implements Comparable<Timeslot> {
         } else {
             period = "PM";
         }
-        return String.format("%d:%02d %s", hour, minute, period);
+        return String.format("%d:%02d %s ", hour, minute, period);
     }
 
     public static void generateTimelots(Timeslot[] timeslots) {

@@ -17,4 +17,10 @@ public class Imaging extends Appointment {
     public void setRoom(Radiology room) {
         this.room = room;
     }
+
+    @Override
+    public String toString() {
+        return date.toString() + " " + timeslot.toString() +
+                patientPerson.getProfile().toString() + " " + providerPerson.toString() + "[" + room.toString() + "]";
+    }
 }

@@ -20,6 +20,12 @@ public class List<E> {
 
     }
 
+    public void clear() {
+        // Simply reset the array and size
+        this.objects = (E[]) new Object[CAPACITY]; // Reset to the initial size
+        this.size = 0; // Reset the size counter
+    }
+
     private int find(E e) {
         int i = 0;
         while (i < size) {
@@ -175,6 +181,7 @@ public class List<E> {
             return element;
         }
     }
+
 
     public static void main(String[] args) {
         // Test Case 1: Add and Get Elements

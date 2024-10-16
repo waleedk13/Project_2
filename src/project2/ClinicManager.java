@@ -22,15 +22,17 @@ public class ClinicManager {
         //Initialize the appointmentList if it's null
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
-
-            if (command.startsWith("Q")) {
+            if (command.isEmpty()) {
+                continue;
+            } else if (command.startsWith("Q")) {
                 quitClinicManager();
                 return;
             } else if (isOneLetterCommand(command)) { // Handle one-letter commands (D, T, C, R)
                 oneLetterCommand(command);
             } else if (isTwoLetterCommand(command)) { // Handle two-letter commands (PA, PP, PL, PS, PO, PI, PC)
                 twoLetterCommand(command);
-            } else {
+            }
+            else {
                 System.out.println("Invalid command!");
             }
         }
@@ -54,8 +56,7 @@ public class ClinicManager {
             scheduleImagingAppointment(command);
         } else if (command.startsWith("C")) {
             cancelAppointment(command);
-        }
-        if (command.startsWith("R")) {
+        } else if (command.startsWith("R")) {
             rescheduleAppointment(command);
         }
     }
@@ -113,16 +114,17 @@ public class ClinicManager {
 
 
     public void scheduleImagingAppointment(String input) {
-        Appointment appointment = createImagingAppointmentFromString(input);
-        if (appointment == null) {
+        Imaging imagingAppointment = createImagingAppointmentFromString(input);
+        if (imagingAppointment == null) {
             return;
         }
-        if(appointmentList.contains(appointment)){
-            System.out.println(appointment.getPatientPerson().toString()+ " has an existing appointment at the same time slot.");
+        if(appointmentList.contains(imagingAppointment)){
+            System.out.println(imagingAppointment.getPatientPerson().toString()+ " has an existing appointment at the same time slot.");
             return;
         }
-        appointmentList.add(appointment);
-        System.out.println(appointment.toString() + " booked.");
+        appointmentList.add(imagingAppointment);
+
+        System.out.println(imagingAppointment.toString() + " booked.");
         System.out.flush();
     }
 
@@ -177,7 +179,7 @@ public class ClinicManager {
         String npi = inputArray[6];
         Doctor doctor = Doctor.getDoctorByNpi(npi, providerList);
         if (!npi.matches("\\d+") || doctor == null) { //for doctor, if NPI isn't numeric
-            System.out.println(npi + " - does not exist.");
+            System.out.println(npi + " - provider does not exist.");
             return null;
         }
 
@@ -196,7 +198,7 @@ public class ClinicManager {
         return appointment;
     }
 
-    public Appointment createImagingAppointmentFromString(String input) {
+    public Imaging createImagingAppointmentFromString(String input) {
         String[] inputArray = breakStringIntoArray(input);
         if(!areAllTokensValid(inputArray)){
             return null;
@@ -294,7 +296,13 @@ public class ClinicManager {
                     existingAppointment.getDate().equals(date) &&
                     existingAppointment.getTimeslot().equals(timeslot)) {
 
-                System.out.println(provider.getProfile().toString() + " is not available at slot " + Timeslot.getNumberFromTimeslot(timeslot, timeslots) + ".");
+                if(provider instanceof Doctor){
+                    Doctor doctor = (Doctor) provider;
+                    System.out.println(doctor.toString() + " is not available at slot " + Timeslot.getNumberFromTimeslot(timeslot, timeslots) + ".");
+                }
+                else{
+                    System.out.println(provider.getProfile().toString() + " is not available at slot " + Timeslot.getNumberFromTimeslot(timeslot, timeslots) + ".");
+                }
                 return false;
             }
         }
@@ -347,7 +355,7 @@ public class ClinicManager {
             }
 
             if (isAvailable) {
-                Location locationOfTechnician = technicianList.getNextTechnician().getLocation();
+                Location locationOfTechnician = currentTechnician.getLocation();
                 if(isImagingRoomAvailable(currentTechnician, locationOfTechnician, appointmentDate, requestedTimeslot, room)){
                     return currentTechnician;
                 }
@@ -385,10 +393,6 @@ public class ClinicManager {
         }
         return true;
     }
-
-
-
-
 
 
     public void displayTechnicians() {
@@ -456,8 +460,54 @@ public class ClinicManager {
     }
 
 
+    public void displayBillingStatements() {
+        if (!Sort.sortByPatients(appointmentList)) {
+            return;
+        }
 
+        Profile currentPatient = null;
+        int totalCharge = 0;
+        int patientCounter = 1;  // Initialize patient counter
 
+        System.out.println();
+        System.out.println("** Billing statement ordered by patient **");
+
+        for (int i = 0; i < appointmentList.size(); i++) {
+            Appointment appointment = appointmentList.get(i);
+            if (appointment == null) {
+                continue;
+            }
+
+            Profile patientProfile = appointment.getPatientPerson().getProfile(); //Come back
+            if (currentPatient == null) {
+                // This is the first patient being processed
+                currentPatient = patientProfile;
+            } else if (!currentPatient.equals(patientProfile)) {
+                // We've moved to a new patient, so print the previous patient's billing statement
+                System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
+
+                // Reset the total charge for the next patient and increment patient counter
+                currentPatient = patientProfile;
+                patientCounter++;
+            }
+
+            if (appointment instanceof Imaging) {
+                Technician technician = (Technician) appointment.getProviderPerson();
+                totalCharge += technician.rate();
+            } else {
+                Doctor doctor = (Doctor) appointment.getProviderPerson();
+                Specialty specialty = doctor.getSpecialty();
+                totalCharge += specialty.getCharge();
+            }
+        }
+
+        //Print the billing statement for the last patient processed
+        if (currentPatient != null) {
+            System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
+        }
+        System.out.println("** end of list **");
+        appointmentList.clear();
+    }
 
 
 
@@ -465,76 +515,3 @@ public class ClinicManager {
         new ClinicManager().run();
     }
 }
-
-
-//    public void displayBillingStatements(){
-//        if (!appointmentList.organizeByPatient()) {
-//            return; // If no appointments, just return
-//        }
-//
-//        Profile currentPatient = null;
-//        int totalCharge = 0;
-//        int patientCounter = 1;  // Initialize patient counter
-//
-//        System.out.println();
-//        System.out.println("** Billing statement ordered by patient **");
-//
-//        for (int i = 0; i < appointmentList.getSize(); i++) {
-//            Appointment appointment = appointmentList.getAppointment(i);
-//            if (appointment == null) {
-//                continue;
-//            }
-//
-//            Profile patientProfile = appointment.getPatientProfile();
-//
-//            // Check if we're processing the same patient
-//            if (currentPatient == null) {
-//                // This is the first patient being processed
-//                currentPatient = patientProfile;
-//            } else if (!currentPatient.equals(patientProfile)) {
-//                // We've moved to a new patient, so print the previous patient's billing statement
-//                System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
-//
-//                // Reset the total charge for the next patient and increment patient counter
-//                totalCharge = 0;
-//                currentPatient = patientProfile;
-//                patientCounter++;
-//            }
-//
-//            // Add up the charges for the current patient
-//            Specialty specialty = appointment.getProvider().getSpecialty();
-//            totalCharge += specialty.getCharge();
-//        }
-//
-//        // Print the billing statement for the last patient processed
-//        if (currentPatient != null) {
-//            System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
-//        }
-//
-//        System.out.println("** end of list **");
-//
-//        // Clear all appointments after billing is processed
-//        appointmentList.clear();
-//    }
-//
-//
-//
-//    public Appointment createAppointmentFromString(String input) {
-//
-//    public Appointment createAppointmentUsingBrokenString(String[] inputArray){
-//        Date appointmentDate = new Date(inputArray[1]);
-//        String validatedAppointmentDateString = appointmentDate.validateAppointmentDate(appointmentDate);
-//        if(validatedAppointmentDateString!= null){
-//            System.out.println(validatedAppointmentDateString);
-//            return null;
-//        }
-//        Timeslot originalTimeslot = Timeslot.timeslotFromNumber(Integer.parseInt(inputArray[2]));
-//
-//        Date dobDate = new Date(inputArray[5]);
-//        Profile profile = new Profile(inputArray[3], inputArray[4], dobDate);
-//
-//        return appointmentList.findAppointmentByProfileAndDate(profile, appointmentDate, originalTimeslot);
-//    }
-//
-
-//}
