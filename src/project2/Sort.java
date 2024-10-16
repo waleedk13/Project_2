@@ -22,9 +22,10 @@ public class Sort {
             default:
                 throw new IllegalStateException("Scheduler class is empty");
         }
-
-
     }
+
+
+
 
     public static boolean sortByPatients(List<Appointment> list) {
         if (list.isEmpty()) {
@@ -61,6 +62,8 @@ public class Sort {
         }
         return true;
     }
+
+
 
 
     public static void sortByAppointment(List<Appointment> list){
@@ -124,9 +127,7 @@ public class Sort {
                 }
             }
         }
-
     }
-
 
 
     private static void exchange(int i, int j, List<Appointment> list) {

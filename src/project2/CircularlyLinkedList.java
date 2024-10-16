@@ -46,7 +46,6 @@ public class CircularlyLinkedList {
     // Method to add a technician to the front of the circular list
     public void addTechnician(Technician technician) {
         Node newNode = new Node(technician, null);
-
         if (head == null) {
             // If the list is empty, initialize the first node
             head = newNode;
@@ -59,12 +58,12 @@ public class CircularlyLinkedList {
                 temp = temp.getNext();
             }
 
-            // Insert newNode at the front
+            // Insert newNode at the end
             temp.setNext(newNode);  // Last node now points to the new node
-            newNode.setNext(head);   // New node points to the current head
-            head = newNode;          // Update head to the new node
+            newNode.setNext(head);   // New node points to the head
         }
     }
+
 
     public boolean isEmpty() {
         return head == null;

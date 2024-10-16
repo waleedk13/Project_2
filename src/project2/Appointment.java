@@ -49,18 +49,20 @@ public class Appointment implements Comparable<Appointment> {
     // Purpose is to see if two appointment objects are equal
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) { // Checks if both objects point to the same memory location
+        if (this == obj) {  // Check if they are the same object in memory
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) { // Checks if the object is null or not the same class
+        if (obj == null || getClass() != obj.getClass()) {  // Check if null or different class
             return false;
         }
         Appointment other = (Appointment) obj;
-        return date.equals(other.date) &&
-                timeslot.equals(other.timeslot) &&
-                patientPerson.getProfile().equals(other.patientPerson.getProfile()) &&
-                providerPerson.getProfile().equals(other.providerPerson.getProfile()); // Compare providerPerson as well
+
+        // Compare date, timeslot, patient for equality
+        return this.date.equals(other.date) &&
+                this.timeslot.equals(other.timeslot) &&
+                this.patientPerson.getProfile().equals(other.patientPerson.getProfile());
     }
+
 
     public Person getPatientPerson() {
         return patientPerson;
