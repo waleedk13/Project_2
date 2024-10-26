@@ -1,4 +1,9 @@
 package project2;
+import util.CircularlyLinkedList;
+import util.Date;
+import util.List;
+import util.Sort;
+
 import java.util.Scanner;
 
 public class ClinicManager {
@@ -20,7 +25,11 @@ public class ClinicManager {
         Scanner scanner = new Scanner(System.in);
 
         //Initialize the appointmentList if it's null
-        while (scanner.hasNextLine()) {
+        while (true) {
+            System.out.flush();
+            if (!scanner.hasNextLine()) {
+                break;
+            }
             String command = scanner.nextLine().trim();
             if (command.isEmpty()) {
                 continue;
@@ -31,12 +40,12 @@ public class ClinicManager {
                 oneLetterCommand(command);
             } else if (isTwoLetterCommand(command)) { // Handle two-letter commands (PA, PP, PL, PS, PO, PI, PC)
                 twoLetterCommand(command);
-            }
-            else {
+            } else {
                 System.out.println("Invalid command!");
             }
         }
     }
+
 
 
     private boolean isOneLetterCommand(String command) {
@@ -121,44 +130,78 @@ public class ClinicManager {
 
     public void cancelAppointment(String input) {
         Appointment tempAppointment = createTempAppointment(input);
-        if (appointmentList.contains(tempAppointment)) {
-            appointmentList.remove(tempAppointment);
-            System.out.println(tempAppointment.toStringWithoutProvider() + " - appointment has been canceled.");
-        } else {
-            System.out.println(tempAppointment.toStringWithoutProvider() + " - doesn't exist.");
+        if(tempAppointment == null) {
+            return;
         }
+
+        for (int i = 0; i < appointmentList.size(); i++) {
+            Appointment existingAppointment = appointmentList.get(i);
+
+            if (existingAppointment.equals(tempAppointment)) {
+                appointmentList.remove(existingAppointment);
+                System.out.println(tempAppointment.toStringWithoutProvider() + " - appointment has been canceled.");
+                return;
+            }
+        }
+
+        System.out.println(tempAppointment.toStringWithoutProvider() + " - appointment does not exist.");
     }
+
+
 
     public void rescheduleAppointment(String input) {
         String[] inputArray = breakStringIntoArray(input);
 
-        //checks if originalAppt in list
         Appointment originalAppointment = createTempAppointment(input);
+        if (originalAppointment == null) {
+            return;
+        }
+
+        // Find the exact appointment in the list (which contains the provider)
+        for (int i = 0; i < appointmentList.size(); i++) {
+            Appointment existingAppointment = appointmentList.get(i);
+            if (existingAppointment.equals(originalAppointment)) {
+                originalAppointment = existingAppointment;  // Use the full appointment with the provider
+                break;
+            }
+        }
+
         if (!appointmentList.contains(originalAppointment)) {
             System.out.println(originalAppointment.toStringWithoutProvider() + " - doesn't exist.");
             return;
         }
+
         int timeSlotNumber = Integer.parseInt(inputArray[6]);
 
-        //checks if valid timeslot
+        // Check if valid timeslot
         Timeslot newTimeSlot = Timeslot.getTimeslotFromNumber(timeSlotNumber, timeslots);
         if (newTimeSlot == null) {
-            System.out.println(timeSlotNumber+  " is not a valid time slot.");
+            System.out.println(timeSlotNumber + " is not a valid time slot.");
             return;
         }
 
         Provider provider = (Provider) originalAppointment.getProviderPerson();
-        if (!isProviderAvailable(provider, originalAppointment.getDate(), newTimeSlot)){
+        if (!isProviderAvailable(provider, originalAppointment.getDate(), newTimeSlot)) {
             return;
         }
 
-        appointmentList.remove(originalAppointment);
-        Doctor doctor = (Doctor) originalAppointment.getProviderPerson();
+        // Create a temporary new appointment to check if it already exists
         Appointment newAppointment = new Appointment(originalAppointment.getDate(), newTimeSlot,
-                originalAppointment.getPatientPerson(), doctor);
+                originalAppointment.getPatientPerson(), provider);
+
+        // Check if the new appointment with the new timeslot already exists in the list
+        if (appointmentList.contains(newAppointment)) {
+            System.out.println(newAppointment.getPatientPerson().getProfile()+ " has an existing appointment at "
+                    + newAppointment.getDate() + " " + newAppointment.getTimeslot());
+            return;
+        }
+
+        // Now proceed with removing the original and adding the new appointment
+        appointmentList.remove(originalAppointment);
         appointmentList.add(newAppointment);
-        System.out.println("Rescheduled to " + newAppointment.toStringWithoutProvider() + doctor.toString());
+        System.out.println("Rescheduled to " + newAppointment.toStringWithoutProvider() + provider.toString());
     }
+
 
 
     public Appointment createDoctorAppointmentFromString(String input) {
@@ -312,15 +355,23 @@ public class ClinicManager {
         return true;
     }
 
-    public Appointment createTempAppointment(String input){
+    public Appointment createTempAppointment(String input) {
         String[] inputArray = breakStringIntoArray(input);
+
+        // Check if input has enough tokens
+        if (inputArray.length < 6) { // Ensure there are enough tokens for the operation
+            System.out.println("Missing data tokens.");  // Print this message if not enough tokens
+            return null;  // Return null if data is missing
+        }
+
         Date appointmentDate = new Date(inputArray[1]);
         Timeslot selectedTimeSlot = Timeslot.getTimeslotFromNumber(Integer.parseInt(inputArray[2]), timeslots);
         Date dobDate = new Date(inputArray[5]);
-        Profile patientProfile = new Profile(inputArray[3], inputArray[4], dobDate);  // First name, Last name, DOB
+        Profile patientProfile = new Profile(inputArray[3], inputArray[4], dobDate);
         Person patient = new Person(patientProfile);
         return new Appointment(appointmentDate, selectedTimeSlot, patient, null);
     }
+
 
     public void displayProviders(List<Provider> providerList) {
         for (int i = 0; i < providerList.size(); i++) {
@@ -455,7 +506,7 @@ public class ClinicManager {
         // Sort the appointment list by date, timeslot, and provider
         Sort.sortByAppointment(appointmentList);
         System.out.println();
-        System.out.println("** Appointments ordered by date/time/provider **");
+        System.out.println("** List of appointments, ordered by date/time/provider **");
         printAppointments();
     }
 
@@ -468,7 +519,7 @@ public class ClinicManager {
         // Sort the appointment list by patient profile, date, and timeslot
         Sort.sortByPatients(appointmentList);
         System.out.println();
-        System.out.println("** Appointments ordered by patient/date/time **");
+        System.out.println("** List of appointments, ordered by patient/date/time **");
         printAppointments();
     }
 
@@ -481,7 +532,7 @@ public class ClinicManager {
 
         // Sort the appointment list by location, date, and timeslot
         Sort.sortByLocation(appointmentList);
-        System.out.println("** Appointments ordered by county/date/time **");
+        System.out.println("** List of appointments, ordered by county/date/time **");
         printAppointments();
     }
 
@@ -495,10 +546,11 @@ public class ClinicManager {
 
 
     public void displayBillingStatements() {
-        if(appointmentList.isEmpty()){
-            System.out.println("The scheduler calendar is empty");
+        if (appointmentList.isEmpty()) {
+            System.out.println("The scheduler calendar is empty.");
             return;
         }
+
         if (!Sort.sortByPatients(appointmentList)) {
             return;
         }
@@ -516,36 +568,43 @@ public class ClinicManager {
                 continue;
             }
 
-            Profile patientProfile = appointment.getPatientPerson().getProfile(); //Come back
-            if (currentPatient == null) {
-                // This is the first patient being processed
-                currentPatient = patientProfile;
-            } else if (!currentPatient.equals(patientProfile)) {
-                // We've moved to a new patient, so print the previous patient's billing statement
+            Profile patientProfile = appointment.getPatientPerson().getProfile();
+
+            // If this is a new patient, print the previous patient's billing statement
+            if (currentPatient != null && !currentPatient.equals(patientProfile)) {
                 System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
 
-                // Reset the total charge for the next patient and increment patient counter
-                currentPatient = patientProfile;
+                // Reset totalCharge for the new patient
+                totalCharge = 0;
                 patientCounter++;
             }
 
+            // Update currentPatient to the new patient's profile
+            currentPatient = patientProfile;
+
+            // Add the charge for the current appointment
             if (appointment instanceof Imaging) {
                 Technician technician = (Technician) appointment.getProviderPerson();
-                totalCharge += technician.rate();
+                int technicianCharge = technician.rate();
+                totalCharge += technicianCharge;
             } else {
                 Doctor doctor = (Doctor) appointment.getProviderPerson();
                 Specialty specialty = doctor.getSpecialty();
-                totalCharge += specialty.getCharge();
+                int doctorCharge = specialty.getCharge();
+                totalCharge += doctorCharge;
             }
         }
 
-        //Print the billing statement for the last patient processed
+        // Print the billing statement for the last patient in the list
         if (currentPatient != null) {
             System.out.println("(" + patientCounter + ") " + currentPatient.toString() + " [amount due: $" + totalCharge + ".00]");
         }
+
         System.out.println("** end of list **");
         appointmentList.clear();
     }
+
+
 
     //PO
     public void displayOfficeAppointments(){
@@ -555,18 +614,19 @@ public class ClinicManager {
         }
         Sort.sortByLocation(appointmentList);
         // Display the sorted appointments
-        System.out.println("Office Appointments (Sorted by County, Date, " +
-                "and Timeslot):");
+        System.out.println();
+        System.out.println("** List of office appointments ordered by county/date/time.");
         int i = 0;
         while(i < appointmentList.size()){
-            if(appointmentList.get(i) instanceof Appointment){
-                Appointment officeAppointment = (Appointment) appointmentList.
-                        get(i);
+            if(!(appointmentList.get(i) instanceof Imaging)){ //if its an appointment, not an imaging
+                Appointment officeAppointment = (Appointment) appointmentList.get(i);
                 System.out.println(officeAppointment.toString());
-                i++;
             }
+            i++;
         }
+        System.out.println("** end of list **");
     }
+
 
     //PI
     public void displayImagingAppointment() {
@@ -574,6 +634,7 @@ public class ClinicManager {
             System.out.println("The scheduler calendar is empty");
             return;
         }
+        Sort.sortByLocation(appointmentList);
 
         System.out.println();
         System.out.println("** List of radiology appointments ordered by county/date/time.");
@@ -589,26 +650,42 @@ public class ClinicManager {
     }
 
     //PC
-    public void displayExpectedCreditAmount(){
+    public void displayExpectedCreditAmount() {
         if (appointmentList.isEmpty()) {
             System.out.println("The scheduler calendar is empty");
             return;
         }
+
+        System.out.println();
+        System.out.println("** Credit amount ordered by provider. **");
+
+        int providerCounter = 1;
+
+        // Loop through each provider in the provider list
         for (int i = 0; i < providerList.size(); i++) {
             Provider provider = providerList.get(i);  // Get the current provider
             int totalCredits = 0;  // Initialize the total credits for this provider
 
+            // Loop through each appointment and accumulate credits for this provider
             for (int j = 0; j < appointmentList.size(); j++) {
                 Appointment appointment = appointmentList.get(j);  // Get the current appointment
+
                 if (appointment.getProviderPerson().equals(provider)) {
                     totalCredits += provider.rate();  // Add the provider's rate for each appointment
                 }
             }
-            System.out.println(provider.getProfile() + ": $" + totalCredits);
 
-
+            // Only print the provider if they have appointments/credits
+            if (totalCredits > 0) {
+                System.out.println("(" + providerCounter + ") " + provider.getProfile()
+                        + " [credit amount: $" + totalCredits + ".00]");
+                providerCounter++;  // Increment the provider counter
+            }
         }
+
+        System.out.println("** end of list **");
     }
+
 
 
 

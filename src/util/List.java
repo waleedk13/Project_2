@@ -1,31 +1,43 @@
-package project2;
-
+package util;
 
 import java.util.Iterator;
 
+/**
+ * A simple implementation of a resizable array-based list.
+ * Provides methods to add, remove, and access elements, as well as to iterate through the list.
+ *
+ * @param <E> The type of elements in this list.
+ * @author Waleed Khalid, Rehan Baig
+ */
 public class List<E> {
-    private E[] objects;
-    private int size;
-    private static final int NOT_FOUND = -1;
-    private static final int CAPACITY = 4;
-
+    private E[] objects;  // Array to store elements
+    private int size;  // Number of elements in the list
+    private static final int NOT_FOUND = -1;  // Constant for element not found
+    private static final int CAPACITY = 4;  // Initial capacity of the list
 
     /**
      * Default constructor for the List class.
-     * Sets the array with a capacity of 4 and sets the initial size to 0.
+     * Initializes the array with a capacity of 4 and sets the initial size to 0.
      */
     public List() {
         this.objects = (E[]) new Object[CAPACITY];
         this.size = 0;
-
     }
 
+    /**
+     * Clears the list by resetting the array and size.
+     */
     public void clear() {
-        // Simply reset the array and size
-        this.objects = (E[]) new Object[CAPACITY]; // Reset to the initial size
-        this.size = 0; // Reset the size counter
+        this.objects = (E[]) new Object[CAPACITY];  // Reset to the initial size
+        this.size = 0;  // Reset the size counter
     }
 
+    /**
+     * Finds the index of the specified element in the list.
+     *
+     * @param e The element to search for.
+     * @return The index of the element if found, or -1 if not found.
+     */
     private int find(E e) {
         int i = 0;
         while (i < size) {
@@ -37,10 +49,9 @@ public class List<E> {
         return NOT_FOUND;
     }
 
-
     /**
-     * A helper method to increase the capacity array by 4
-     * This method is called when the orignal array becomes full
+     * A helper method to increase the capacity of the array by 4.
+     * This method is called when the original array becomes full.
      */
     private void grow() {
         E[] newObjects = (E[]) new Object[objects.length + 4];
@@ -52,28 +63,21 @@ public class List<E> {
         this.objects = newObjects;
     }
 
-
     /**
-     * Checks to see if the appointment exists in the array
+     * Checks if the list contains the specified element.
      *
-     * @param e The appointment to check.
-     * @return true if the appointment is there and false if it does not exist
+     * @param e The element to check.
+     * @return true if the element is found, false otherwise.
      */
     public boolean contains(E e) {
-        int locate = find(e);
-        if (locate == NOT_FOUND) {
-            return false;
-        }
-        return true;
+        return find(e) != NOT_FOUND;
     }
 
-
     /**
-     * Adds a new appointment to the array.
-     * If the appointment already exists and/or the array is full,
-     * it will handle accordingly.
+     * Adds a new element to the list.
+     * If the array is full, it increases the array size.
      *
-     * @param e The appointment to add.
+     * @param e The element to add.
      */
     public void add(E e) {
         if (size == objects.length) {
@@ -83,105 +87,107 @@ public class List<E> {
         size++;
     }
 
-
     /**
-     * Removes an appointment from the array.
-     * If the appointment does not exist it prints an error message
+     * Removes the specified element from the list.
      *
-     * @param e The appointment to remove.
-     * @return The details of the removed appointment and if not found will
-     * print null
+     * @param e The element to remove.
+     * @return true if the element was removed, false otherwise.
      */
-
     public boolean remove(E e) {
         int index = find(e);
         if (index == NOT_FOUND) {
             return false;
         }
-        objects[index] = objects[size - 1];
-        objects[size - 1] = null;
+        objects[index] = objects[size - 1];  // Replace with the last element
+        objects[size - 1] = null;  // Nullify the last element
         size--;
         return true;
     }
 
-
     /**
      * Checks if the list is empty.
      *
-     * @return true if the list is empty, false if it is not empty
+     * @return true if the list is empty, false otherwise.
      */
     public boolean isEmpty() {
         return size == 0;
     }
 
-
-    //is this the getter method?
+    /**
+     * Returns the current size of the list.
+     *
+     * @return The number of elements in the list.
+     */
     public int size() {
         return size;
-
     }
-
-    public Iterator<E> iterator() {
-        return new ListIterator<>();
-
-    }
-
 
     /**
-     * Returns the element located at the given index.
+     * Returns an iterator over the elements in the list.
      *
-     * @param index the position of the element to be returned
-     * @return the element at the specified index
+     * @return An iterator for the list.
+     */
+    public Iterator<E> iterator() {
+        return new ListIterator<>();
+    }
+
+    /**
+     * Returns the element at the specified index.
+     *
+     * @param index The index of the element to return.
+     * @return The element at the specified index.
+     * @throws IndexOutOfBoundsException If the index is out of range.
      */
     public E get(int index) {
         if (index < 0 || index >= size) {
-            String errorMessage = ("Invalid Index: " + index + ", " +
-                    "the size is: " + size);
+            String errorMessage = ("Invalid Index: " + index + ", the size is: " + size);
             throw new IndexOutOfBoundsException(errorMessage);
         }
         return objects[index];
     }
 
-
+    /**
+     * Replaces the element at the specified index with the specified element.
+     *
+     * @param index The index of the element to replace.
+     * @param e     The element to be stored at the specified position.
+     */
     public void set(int index, E e) {
         objects[index] = e;
-
     }
 
+    /**
+     * An inner class that provides an iterator for the List class.
+     *
+     * @param <E> The type of elements returned by this iterator.
+     */
     private class ListIterator<E> implements Iterator<E> {
-        private int activeIndex = 0;
-
+        private int activeIndex = 0;  // Index of the next element to return
 
         /**
          * Determines if additional elements exist in the list.
          *
-         * @return true if more elements are available, false if not
+         * @return true if more elements are available, false otherwise.
          */
-
         public boolean hasNext() {
-            if (activeIndex >= size) {
-                return false;
-            }
-            return objects[activeIndex] != null;
+            return activeIndex < size && objects[activeIndex] != null;
         }
-
 
         /**
          * Returns the next element in the list.
          *
-         * @return the next element
+         * @return The next element.
+         * @throws IllegalStateException If no further elements are available.
          */
         public E next() {
-            if (hasNext() == false) {
-                throw new IllegalStateException
-                        ("No further elements available");
+            if (!hasNext()) {
+                throw new IllegalStateException("No further elements available");
             }
             E element = (E) objects[activeIndex];
             activeIndex++;
             return element;
         }
     }
-
 
     public static void main(String[] args) {
         // Test Case 1: Add and Get Elements
@@ -244,6 +250,5 @@ public class List<E> {
         // Final size check after all operations
         System.out.println("Final size: " + stringList.size());
         assert stringList.size() == 3 : "Final size should be 3";
-
     }
 }

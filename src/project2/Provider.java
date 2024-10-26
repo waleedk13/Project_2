@@ -1,28 +1,66 @@
 package project2;
+
+import util.Date;
+import util.List;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * The Provider class represents a healthcare provider, which can be either a doctor or a technician.
+ * It extends the Person class and adds the location of the provider. This is an abstract class
+ * with an abstract method for determining the rate per visit.
+ *
+ * @author Rehan Baig, Waleed Khalid
+ *  * @implemented Waleed Khalid, Rehan Baig
+ */
 public abstract class Provider extends Person {
-    private Location location;
+    private Location location;  // The location of the provider (city, state, etc.)
 
+    /**
+     * Constructs a Provider with the specified profile and location.
+     *
+     * @param profile The profile of the provider.
+     * @param location The location of the provider.
+     */
     public Provider(Profile profile, Location location) {
         super(profile);
         this.location = location;
     }
 
+    /**
+     * Gets the location of the provider.
+     *
+     * @return The provider's location.
+     */
     public Location getLocation() {
         return location;
     }
 
+    /**
+     * Sets the location of the provider.
+     *
+     * @param location The new location of the provider.
+     */
     public void setLocation(Location location) {
         this.location = location;
     }
 
+    /**
+     * Abstract method for getting the rate per visit of the provider.
+     *
+     * @return The rate per visit for the provider.
+     */
     public abstract int rate();  // Abstract method for rate
 
-
+    /**
+     * Generates a list of providers (doctors and technicians) by reading from a file.
+     * The file should contain information about the providers in the specified format.
+     *
+     * @param providers The list to which the generated providers will be added.
+     * @throws RuntimeException if the file is not found.
+     */
     public static void generateProviders(List<Provider> providers) {
-        String filePath = "src/project2/providers.txt"; // Path to your file
+        String filePath = "src/project2/providers.txt"; // Path to the file containing provider information
         try {
             Scanner scanner = new Scanner(new java.io.File(filePath));  // Open the file for reading
 
@@ -64,7 +102,4 @@ public abstract class Provider extends Person {
             throw new RuntimeException("File not found: " + filePath);
         }
     }
-
-
-
 }
